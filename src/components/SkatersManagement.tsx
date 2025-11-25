@@ -9,78 +9,20 @@ import { ArrowLeft, User, Search, Plus } from 'lucide-react';
 interface SkatersManagementProps {
   onBack: () => void;
   onViewProfile: (skaterId: number) => void;
+  onCreateSkater: () => void;
 }
 
-export function SkatersManagement({ onBack, onViewProfile }: SkatersManagementProps) {
+export function SkatersManagement({ onBack, onViewProfile, onCreateSkater }: SkatersManagementProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [skaters, setSkaters] = useState(() => {
+    const saved = localStorage.getItem('skaters');
+    return saved ? JSON.parse(saved) : [];
+  });
 
-  const mockSkaters = [
-    {
-      id: 1,
-      name: 'João Silva',
-      cpf: '123.456.789-00',
-      gender: 'Masculino',
-      school: 'Colégio São Paulo',
-      level: 'Intermediário',
-      lastSession: '2025-10-14',
-      totalSessions: 45
-    },
-    {
-      id: 2,
-      name: 'Maria Santos',
-      cpf: '234.567.890-11',
-      gender: 'Feminino',
-      school: 'Escola Municipal Centro',
-      level: 'Iniciante',
-      lastSession: '2025-10-14',
-      totalSessions: 28
-    },
-    {
-      id: 3,
-      name: 'Pedro Oliveira',
-      cpf: '345.678.901-22',
-      gender: 'Masculino',
-      school: 'Instituto Educacional Norte',
-      level: 'Avançado',
-      lastSession: '2025-10-13',
-      totalSessions: 82
-    },
-    {
-      id: 4,
-      name: 'Ana Costa',
-      cpf: '456.789.012-33',
-      gender: 'Feminino',
-      school: 'Colégio Estadual Sul',
-      level: 'Iniciante',
-      lastSession: '2025-10-14',
-      totalSessions: 15
-    },
-    {
-      id: 5,
-      name: 'Carlos Mendes',
-      cpf: '567.890.123-44',
-      gender: 'Masculino',
-      school: 'Escola Técnica Leste',
-      level: 'Intermediário',
-      lastSession: '2025-10-12',
-      totalSessions: 56
-    },
-    {
-      id: 6,
-      name: 'Lucia Ferreira',
-      cpf: '678.901.234-55',
-      gender: 'Feminino',
-      school: 'Colégio Particular Oeste',
-      level: 'Avançado',
-      lastSession: '2025-10-14',
-      totalSessions: 98
-    }
-  ];
-
-  const filteredSkaters = mockSkaters.filter(skater =>
+  const filteredSkaters = skaters.filter(skater =>
     skater.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     skater.cpf.includes(searchQuery) ||
-    skater.school.toLowerCase().includes(searchQuery.toLowerCase())
+    skater.phone.includes(searchQuery)
   );
 
   const getLevelBadge = (level: string) => {
@@ -110,7 +52,7 @@ export function SkatersManagement({ onBack, onViewProfile }: SkatersManagementPr
               Visualize e gerencie os perfis dos seus skatistas
             </p>
           </div>
-          <Button>
+          <Button onClick={onCreateSkater}>
             <Plus className="w-4 h-4 mr-2" />
             Novo Skatista
           </Button>
@@ -124,7 +66,7 @@ export function SkatersManagement({ onBack, onViewProfile }: SkatersManagementPr
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
-                placeholder="Pesquisar por nome, CPF ou escola..."
+                placeholder="Pesquisar por nome, CPF ou telefone..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -138,7 +80,7 @@ export function SkatersManagement({ onBack, onViewProfile }: SkatersManagementPr
           <Card>
             <CardContent className="pt-6">
               <div className="text-center">
-                <div className="text-2xl font-semibold">{mockSkaters.length}</div>
+                <div className="text-2xl font-semibold">{skaters.length}</div>
                 <div className="text-sm text-muted-foreground">Total Skatistas</div>
               </div>
             </CardContent>
@@ -147,7 +89,7 @@ export function SkatersManagement({ onBack, onViewProfile }: SkatersManagementPr
             <CardContent className="pt-6">
               <div className="text-center">
                 <div className="text-2xl font-semibold text-green-600">
-                  {mockSkaters.filter(s => s.level === 'Iniciante').length}
+                  {skaters.filter(s => s.level === 'Iniciante').length}
                 </div>
                 <div className="text-sm text-muted-foreground">Iniciantes</div>
               </div>
@@ -157,7 +99,7 @@ export function SkatersManagement({ onBack, onViewProfile }: SkatersManagementPr
             <CardContent className="pt-6">
               <div className="text-center">
                 <div className="text-2xl font-semibold text-blue-600">
-                  {mockSkaters.filter(s => s.level === 'Intermediário').length}
+                  {skaters.filter(s => s.level === 'Intermediário').length}
                 </div>
                 <div className="text-sm text-muted-foreground">Intermediários</div>
               </div>
@@ -167,7 +109,7 @@ export function SkatersManagement({ onBack, onViewProfile }: SkatersManagementPr
             <CardContent className="pt-6">
               <div className="text-center">
                 <div className="text-2xl font-semibold text-purple-600">
-                  {mockSkaters.filter(s => s.level === 'Avançado').length}
+                  {skaters.filter(s => s.level === 'Avançado').length}
                 </div>
                 <div className="text-sm text-muted-foreground">Avançados</div>
               </div>
@@ -182,7 +124,7 @@ export function SkatersManagement({ onBack, onViewProfile }: SkatersManagementPr
               <CardContent className="pt-6">
                 <div className="flex items-center gap-4">
                   <Avatar className="w-12 h-12">
-                    <AvatarImage src="" />
+                    <AvatarImage src={skater.photo} />
                     <AvatarFallback>
                       <User className="w-6 h-6" />
                     </AvatarFallback>
@@ -195,7 +137,7 @@ export function SkatersManagement({ onBack, onViewProfile }: SkatersManagementPr
                     </div>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <span>🆔 {skater.cpf}</span>
-                      <span>🏫 {skater.school}</span>
+                      <span>📱 {skater.phone}</span>
                       <span>{skater.gender}</span>
                     </div>
                   </div>
@@ -234,7 +176,7 @@ export function SkatersManagement({ onBack, onViewProfile }: SkatersManagementPr
               <p className="text-muted-foreground mb-4">
                 Tente ajustar os filtros de pesquisa ou adicione um novo skatista.
               </p>
-              <Button>
+              <Button onClick={onCreateSkater}>
                 <Plus className="w-4 h-4 mr-2" />
                 Adicionar Skatista
               </Button>
